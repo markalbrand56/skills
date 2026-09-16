@@ -3,6 +3,7 @@
 set -eo pipefail
 repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
 target_dir="${CODEX_HOME:-$HOME/.codex}/skills"
+explicit_target=false
 dry_run=false
 requested_profile=default
 usage() {
@@ -12,7 +13,7 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --profile|--target-dir)
       [ "$#" -ge 2 ] || { usage >&2; exit 1; }
-      case "$1" in --profile) requested_profile="$2";; --target-dir) target_dir="$2";; esac
+      case "$1" in --profile) requested_profile="$2";; --target-dir) target_dir="$2"; explicit_target=true;; esac
       shift 2;;
     --dry-run) dry_run=true; shift;;
     -h|--help) usage; exit 0;;
@@ -23,6 +24,21 @@ fail() { echo "ERROR: $*" >&2; exit 1; }
 [ "$(uname -s)" = Darwin ] || fail "Esta versión requiere macOS."
 source "$repo_dir/skills-manifest.sh"
 [ "$requested_profile" = "$profile" ] || fail "Perfil desconocido: $requested_profile"
+# Cada destino conserva su estado y comprobación de conflictos independiente.
+# --target-dir selecciona un único destino y evita la detección automática.
+if ! $explicit_target; then
+  targets=("$target_dir")
+  if [ -d "$HOME/.claude/skills" ] && [ "$HOME/.claude/skills" != "$target_dir" ]; then
+    targets+=("$HOME/.claude/skills")
+  fi
+  options=(--profile "$requested_profile")
+  if $dry_run; then options+=(--dry-run); fi
+  for agent_target in "${targets[@]}"; do
+    printf '\nDestino: %s\n' "$agent_target"
+    /bin/bash "$repo_dir/scripts/bootstrap.sh" "${options[@]}" --target-dir "$agent_target"
+  done
+  exit 0
+fi
 valid_name() { [[ "$1" =~ ^[a-z0-9][a-z0-9-]*$ ]]; }
 selected() {
   local item
@@ -132,4 +148,4 @@ for name in "${names[@]}"; do
   rm -rf "$state_dir/installed/$name"
   cp -R "$destination" "$state_dir/installed/$name"
 done
-echo "Listo. Reinicia Codex si las skills nuevas todavía no aparecen."
+echo "Listo. Reinicia el agente si las skills nuevas todavía no aparecen."

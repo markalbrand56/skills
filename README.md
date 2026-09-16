@@ -13,7 +13,9 @@ Clona este repositorio en cada usuario y ejecuta desde su carpeta:
 
 El perfil inicial es `default`; `skills=("*")` en `skills-manifest.sh` incluye todas las carpetas de `skills/` y todas las externas declaradas. También se puede indicar `--profile default`.
 
-El destino predeterminado es `${CODEX_HOME:-$HOME/.codex}/skills`. Para otro agente o un destino de prueba:
+Por defecto instala en `${CODEX_HOME:-$HOME/.codex}/skills` y también en `~/.claude/skills` si esa carpeta ya existe. No crea la carpeta de Claude automáticamente. Ambos reciben las mismas carpetas completas de skills y recursos; `agents/openai.yaml` es metadata específica de Codex y no es necesaria para Claude.
+
+`--dry-run` muestra todos los destinos detectados. `--target-dir` reemplaza la detección automática e instala únicamente en el destino indicado:
 
 ```sh
 ./scripts/bootstrap.sh --target-dir "$HOME/.claude/skills"
@@ -56,7 +58,7 @@ El manifest es código Bash de confianza, no JSON ni YAML. No lo cargues desde u
 
 ## Conflictos y estado
 
-El bootstrap descarga y comprueba todas las skills seleccionadas antes de modificar sus destinos. Acepta copias idénticas y actualiza copias administradas sin cambios locales. Si encuentra otra instalación distinta o una copia modificada manualmente, se detiene con su ruta: respalda o mueve esa carpeta antes de repetir.
+El bootstrap procesa Codex y después Claude, con estado y conflictos independientes. Para cada destino descarga y comprueba todas las skills seleccionadas antes de modificar sus carpetas. Si Claude presenta un conflicto, Codex puede haberse sincronizado ya; resuelve el conflicto y repite el comando. Acepta copias idénticas y actualiza copias administradas sin cambios locales. Si encuentra otra instalación distinta o una copia modificada manualmente, se detiene con su ruta: respalda o mueve esa carpeta antes de repetir.
 
 Las snapshots y descargas se guardan en `~/Library/Caches/personal-skills/` (o `$XDG_CACHE_HOME/personal-skills/`). Si borras esa caché, las copias idénticas se adoptan de nuevo; las distintas requerirán resolver el conflicto. No se eliminan automáticamente skills retiradas del manifest ni instalaciones ajenas. Evita editar las copias instaladas: edita las propias en este repositorio.
 
