@@ -4,6 +4,17 @@ Skills propias versionadas y skills externas fijadas por commit, compartidas ent
 
 ## Instalar y sincronizar
 
+### Con NPX
+
+```sh
+npx skills add markalbrand56/skills \
+  --skill '*' --global \
+  --agent codex --agent claude-code \
+  --copy --yes
+```
+
+### Clonando el repositorio
+
 Clona este repositorio en cada usuario y ejecuta desde su carpeta:
 
 ```sh
