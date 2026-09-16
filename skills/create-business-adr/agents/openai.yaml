@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR con respaldo empresarial"
+  short_description: "Formaliza decisiones con impacto de negocio"
+  default_prompt: "Use $create-business-adr para convertir esta propuesta en un ADR con respaldo empresarial."

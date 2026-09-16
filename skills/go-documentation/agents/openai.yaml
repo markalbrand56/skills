@@ -1,0 +1,3 @@
+interface:
+  display_name: "Go Documentation"
+  short_description: "Audit and improve idiomatic Go doc comments"
